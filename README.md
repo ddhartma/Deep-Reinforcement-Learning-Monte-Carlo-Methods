@@ -5,6 +5,7 @@
 [image5]: assets/visits.png "image5"
 [image6]: assets/algo9.png "image6"
 [image7]: assets/first_visit_mc.png "image7"
+[image8]: assets/greedy_policy_1.png "image8"
 
 
 # Deep Reinforcement Learning Theory - Monte Carlo Methods
@@ -284,12 +285,24 @@ We have four states, four actions.
 
 
 ## Greedy Policies <a name="greedy_policies"></a> 
+So far, we've learned 
+- how an agent can take a policy like the equal probable random policy,
+- Use that to interact with the environment.
+- Use that experience to populate the corresponding Q-table.
+- This Q-table is an estimate of that policies action value function.
+
+How to get the optimal policy?
+- Select for each state the action that maximizes the Q-table.
+- Let's call that new policy **π'**.
+- Replace the old policy with this new policy.
+- Estimate its value function.
+- Use that new value function to get a better policy.
+- Continue alternating between these two steps over and over until we converge to the optimal policy.
+
+    ![image8]
+
 - A policy is greedy with respect to an action-value function estimate **Q** if for every state **s ∈ S**, it is guaranteed to select an action **a ∈ A(s)** such that **a = argmax<sub>a∈A(s)</sub>Q(s,a)**. (It is common to refer to the selected action as the greedy action.)
 - In the case of a finite MDP, the action-value function estimate is represented in a Q-table. Then, to get the greedy action(s), for each row in the table, we need only select the action (or actions) corresponding to the column(s) that maximize the row.
-
-
-
-
 
 ## Epsilon-Greedy Policies <a name="epsilon_greedy_policies"></a> 
 - A policy is **ϵ-greedy** with respect to an action-value function estimate **Q** if for every state **s ∈ S**,
