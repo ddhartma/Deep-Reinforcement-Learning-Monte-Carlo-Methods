@@ -6,7 +6,14 @@
 [image6]: assets/algo9.png "image6"
 [image7]: assets/first_visit_mc.png "image7"
 [image8]: assets/greedy_policy_1.png "image8"
-
+[image9]: assets/epsilon_greedy.png "image9"
+[image10]: assets/mc_control.png "image10"
+[image11]: assets/exploration_exploitation.png "image11"
+[image12]: assets/incremental_mean.png "image12"
+[image13]: assets/pseudocode_mc_glie.png "image13"
+[image14]: assets/constant_alpha.png "image14"
+[image15]: assets/pseudocode_const_alpha.png "image15"
+[image16]: assets/first_visit_constant_alpha.png "image16"
 
 # Deep Reinforcement Learning Theory - Monte Carlo Methods
 
@@ -69,7 +76,6 @@ We have four states, four actions.
 
 - Algorithms that solve the prediction problem determine the value function **v<sub>π</sub>** (or **q<sub>π</sub>**) corresponding to a policy **π**.
 - When working with finite MDPs, we can estimate the action-value function **q<sub>π</sub>** corresponding to a policy **π** in a table known as a **Q-table**. This table has one row for each state and one column for each action. The entry in the **s-th** row and **a-th** column contains the agent's estimate for expected return that is likely to follow, if the agent starts in state **s**, selects action aaa, and then henceforth follows the policy **π**.
-
 
     ![image3]
 
@@ -306,32 +312,177 @@ How to get the optimal policy?
 
 ## Epsilon-Greedy Policies <a name="epsilon_greedy_policies"></a> 
 - A policy is **ϵ-greedy** with respect to an action-value function estimate **Q** if for every state **s ∈ S**,
-    - with probability **1 − ϵ**1, the agent selects the greedy action, and
+    - with probability **1 − ϵ**, the agent selects the greedy action, and
     - with probability **ϵ**, the agent selects an action uniformly at random from the set of available (non-greedy AND greedy) actions.
 
+- Without epsilon-greedy the agent would always prefer greedy action. This can lead to mistakes if there are large but unlikely rewards.
+
+    ![image9]
 
 ## MC Control <a name="mc_control"></a>
 - Algorithms designed to solve the **control problem** determine the optimal policy **π<sub>∗</sub>** from interaction with the environment.
 - The **Monte Carlo control method** uses alternating rounds of policy evaluation and improvement to recover the optimal policy.
 
+    ![image10]
+
 
 ## Exploration vs. Exploitation <a name="explorat_vs_exploit"></a> 
 - All reinforcement learning agents face the **Exploration-Exploitation Dilemma**, where they must find a way to balance the drive to behave optimally based on their current knowledge (exploitation) and the need to acquire knowledge to attain better judgment (exploration).
+- One potential solution to this dilemma is implemented by gradually modifying the value of **ϵ** when constructing **ϵ**-greedy policies
 - In order for MC control to converge to the optimal policy, the Greedy in the Limit with Infinite Exploration (GLIE) conditions must be met:
     - every state-action pair **s**, **a**, (for all **s ∈ S** and **a ∈ A(s)** is visited infinitely many times, and
     - the policy converges to a policy that is greedy with respect to the action-value function estimate **Q**.
 
+    ![image11]
+
+### Setting the Value of **ϵ** (in theory)
+- Start with favoring **exploration over exploitation**. Explore, or try out various strategies for maximizing return
+- **Best starting policy** is the **equiprobable random policy** (**ϵ = 1**)
+- **Later, favor exploitation** over exploration, where the **policy gradually becomes more greedy**
+- The more the agent interacts with the environment, the more it can trust its **estimated action-value function**.
+- **ϵ = 0** yields the **greedy policy** (or, the **policy that most favors exploitation over exploration**).
+
+### Greedy in the Limit with Infinite Exploration (GLIE)
+- In order to guarantee that **MC control converges to the optimal policy π<sub>*</sub>**, two conditions must be met:
+    - every state-action pair **s, a** (for all **s ∈ S** and **a ∈ A(s)** is visited infinitely many times, and 
+    - the policy converges to a policy that is greedy with respect to the action-value function estimate **Q**
+- These conditions ensure that:
+    - the **agent continues to explore** for all time steps, and
+    - the **agent gradually exploits more** (and explores less).
+
+- Both conditions are met if:
+    - **ϵ<sub>i</sub> > 0** for all time steps **i**, and
+    - **ϵ<sub>i</sub>** decays to zero in the limit as the time step **i** approaches infinity (**lim<sub> i→∞</sub> ϵ<sub>i</sub> = 0**).
+
+### Setting the Value of **ϵ** (in practice)
+- Even though convergence is not guaranteed by the mathematics, you can often get better results by either:
+    - using fixed **ϵ**, or
+    - letting **ϵ<sub>i</sub>** decay to a small positive number, like 0.1.
+- Check this [research paper](https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf): The behavior policy during training was epsilon-greedy with epsilon annealed linearly from 1.0 to 0.1 over the first million frames, and fixed at 0.1 thereafter.
 
 ## Incremental Mean <a name="inc_mean"></a> 
-- (In this concept, we amended the policy evaluation step to update the Q-table after every episode of interaction.)
+- In the current algorithm for Monte Carlo control, a **large number of episodes is collected** to build the Q-table. Then, after the values in the Q-table have converged, we use the table to come up with an improved policy.
+- In the concept **Incremental Mean**, we amended the policy evaluation step to update the Q-table after **every episode of interaction**.
+
+    ![image12]
+
+- Read section 5.6 of the [Reinforcement Learning Textbook](https://s3-us-west-1.amazonaws.com/udacity-drlnd/bookdraft2018.pdf).
+
+
+### Pseudocode
+- The pseudocode can be found below
+
+    ![image13]
+
+- There are two relevant tables:
+    - **Q-table**, with a row for each state and a column for each action. The entry corresponding to state **s** and action **a** is denoted **Q(s,a)**.
+    - **N-table** that keeps track of the number of first visits we have made to each state-action pair.
+- The number of episodes the agent collects is equal to **num_episodes**. 
+- The algorithm proceeds by looping over the following steps:
+    - **Step 1**: The policy **π** is improved to be **ϵ**-greedy with respect to **Q**, and the agent uses **π** to collect an episode.
+    - **Step 2**: **N** is updated to count the total number of first visits to each state action pair.
+    - **Step 3**: The estimates in **Q** are updated to take into account the most recent information.
+
+- In this way, the **agent is able to improve the policy after every episode**!
+
 
 ## Constant-alpha <a name="const_alpha"></a> 
 - (In this concept, we derived the algorithm for **constant-α** MC control, which uses a constant step-size parameter **α**.)
 - The step-size parameter **α** must satisfy **0 < α ≤ 1**. Higher values of **α** will result in faster learning, but values of **α** that are too high can prevent MC control from converging to **π<sub>∗</sub>**.
 
+    ![image14]
 
+### Setting the Value of **α**
+- Always set the value for **α** to a number greater than 0 and less than (or equal to) 1.
+    - If **α = 0**, then the action-value function estimate is never updated by the agent.
+    - If **α = 1**, then the final value estimate for each state-action pair is always equal to the last return that was experienced by the agent (after visiting the pair).
 
+- Smaller values for **α** encourage the agent to consider a longer history of returns when calculating the action-value function estimate. 
+- Increasing the value of **α** ensures that the agent focuses more on the most recently sampled returns.
 
+### Pseudocode
+- The pseudocode for constant-α\alphaα GLIE MC Control
+
+    ![image15]
+
+### First-Visit Constant-alpha (GLIE) MC Control
+- Open Jupyter Notebook ```monte_carlo_methods.ipynb```
+    ```
+    def get_probs(Q_s, epsilon, nA):
+        """ Obtains the action probabilities corresponding to epsilon-greedy policy 
+        
+            INPUTS:
+            ------------
+                Q_s - (numpy array) shape (2,) containing state-action pair values for actual state (e.g. [-0.23 0.02])
+                epsilon - (float) starts with equiprobable random policy (ϵ = 1) and gradually changes with episodes to 
+                        ϵ = 0 --> greedy policy (or, the policy that most favors exploitation over exploration)
+                nA - (int) number of possible actions (here two actions, hit or stick)
+            
+            OUTPUTS:
+            ------------
+                policy_s - (float) policy for actual state s 
+        """
+        
+        policy_s = np.ones(nA) * epsilon / nA
+        best_a = np.argmax(Q_s)
+        policy_s[best_a] = 1 - epsilon + (epsilon / nA)
+        return policy_s
+
+    def update_Q(env, episode, Q, alpha, gamma):
+        """ Updates the action-value function estimate using the most recent episode 
+        
+            INPUTS:
+            ------------
+                env - (OpenAI gym instance) instance of an OpenAI Gym environment
+                episode - (list of tuples) like [(state_1, action_1, reward_2), ...] for each time step
+                Q - (dictionary of one-dimensional arrays) where Q[s][a] is the estimated action value 
+                    corresponding to state s and action a
+                alpha - (float) step-size parameter for the update step (constant alpha concept)
+                gamma - (float) discount rate. It must be a value between 0 and 1, inclusive (default value: 1)
+            
+            OUTPUTS:
+            ------------
+                Q - (dictionary of one-dimensional arrays) where Q[s][a] is the UPDATED estimated action value 
+                    corresponding to state s and action a
+        """
+        
+        states, actions, rewards = zip(*episode)
+        # prepare for discounting
+        discounts = np.array([gamma**i for i in range(len(rewards)+1)])
+        for i, state in enumerate(states):
+            old_Q = Q[state][actions[i]] 
+            Q[state][actions[i]] = old_Q + alpha*(sum(rewards[i:]*discounts[:-(1+i)]) - old_Q)
+        return Q
+
+    def generate_episode_from_Q(env, Q, epsilon, nA):
+        """ Generates an episode from following the epsilon-greedy policy 
+        
+            INPUTS:
+            ------------
+                env - (OpenAI gym instance) instance of an OpenAI Gym environment
+                num_episodes -(int) number of episodes that are generated through agent-environment interaction
+                alpha - (float) step-size parameter for the update step (constant alpha concept)
+                gamma - (float) discount rate. It must be a value between 0 and 1, inclusive (default value: 1)
+    
+            OUTPUTS:
+            ------------
+                episode - (list of tuples) like [(state_1, action_1, reward_2), ...] for each time step
+        """
+        
+        episode = []
+        state = env.reset()
+        while True:
+            action = np.random.choice(np.arange(nA), p=get_probs(Q[state], epsilon, nA)) \
+                                        if state in Q else env.action_space.sample()
+            next_state, reward, done, info = env.step(action)
+            episode.append((state, action, reward))
+            state = next_state
+            if done:
+                break
+        return episode
+    ```
+
+    ![image16]
 
 ## Setup Instructions <a name="Setup_Instructions"></a>
 The following is a brief set of instructions on setting up a cloned repository.
