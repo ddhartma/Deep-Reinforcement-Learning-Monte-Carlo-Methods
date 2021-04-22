@@ -71,11 +71,11 @@ We have four states, four actions.
 
 ## MC Prediction <a name="mcp"></a> 
 - **Prediction Problem**: Given a policy, how might the agent estimate the value function for that policy?
-- Idea: Start with the equiprobable random policy, and then use episodes in combination with the Q-table to find a better policy.
+- Idea: **Start with the equiprobable random policy**, and then **use episodes in combination with the Q-table to find a better policy**.
 - To populate an entry in the Q-table, we use the return that followed when the agent was in that state, and chose the action. If the agent has selected in one state the same action many times, we need only average the returns.
 
 - Algorithms that solve the prediction problem determine the value function **v<sub>π</sub>** (or **q<sub>π</sub>**) corresponding to a policy **π**.
-- When working with finite MDPs, we can estimate the action-value function **q<sub>π</sub>** corresponding to a policy **π** in a table known as a **Q-table**. This table has one row for each state and one column for each action. The entry in the **s-th** row and **a-th** column contains the agent's estimate for expected return that is likely to follow, if the agent starts in state **s**, selects action aaa, and then henceforth follows the policy **π**.
+- When working with finite MDPs, we can estimate the action-value function **q<sub>π</sub>** corresponding to a policy **π** in a table known as a **Q-table**. This table has one row for each state and one column for each action. The entry in the **s-th** row and **a-th** column contains the agent's estimate for expected return that is likely to follow, if the agent starts in state **s**, selects action **a**, and then henceforth follows the policy **π**.
 
     ![image3]
 
@@ -145,6 +145,10 @@ We have four states, four actions.
     # 707 different states: 704 = 32*11*2
     print(env.observation_space)
     print(env.action_space)
+
+    RESULT:
+    Tuple(Discrete(32), Discrete(11), Discrete(2))
+    Discrete(2)
     ```
     ### Get some experience: Play Blackjack three times 
     ```
@@ -291,11 +295,11 @@ We have four states, four actions.
 
 
 ## Greedy Policies <a name="greedy_policies"></a> 
-So far, we've learned 
-- how an agent can take a policy like the equal probable random policy,
-- Use that to interact with the environment.
-- Use that experience to populate the corresponding Q-table.
-- This Q-table is an estimate of that policies action value function.
+So far, we've learned how an agent: 
+- can take a policy like the **equal probable random policy**,
+- use that to **interact with the environment**.
+- use that experience to populate the corresponding **Q-table**.
+- This Q-table is an **estimate of that policies action value function**.
 
 How to get the optimal policy?
 - Select for each state the action that maximizes the Q-table.
@@ -329,7 +333,7 @@ How to get the optimal policy?
 ## Exploration vs. Exploitation <a name="explorat_vs_exploit"></a> 
 - All reinforcement learning agents face the **Exploration-Exploitation Dilemma**, where they must find a way to balance the drive to behave optimally based on their current knowledge (exploitation) and the need to acquire knowledge to attain better judgment (exploration).
 - One potential solution to this dilemma is implemented by gradually modifying the value of **ϵ** when constructing **ϵ**-greedy policies
-- In order for MC control to converge to the optimal policy, the Greedy in the Limit with Infinite Exploration (GLIE) conditions must be met:
+- In order for MC control to **converge to the optimal policy**, the **Greedy in the Limit with Infinite Exploration (GLIE)** conditions must be met:
     - every state-action pair **s**, **a**, (for all **s ∈ S** and **a ∈ A(s)** is visited infinitely many times, and
     - the policy converges to a policy that is greedy with respect to the action-value function estimate **Q**.
 
