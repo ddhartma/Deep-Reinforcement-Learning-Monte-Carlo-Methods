@@ -292,8 +292,6 @@ We have four states, four actions.
     ![image7]
 
 
-
-
 ## Greedy Policies <a name="greedy_policies"></a> 
 So far, we've learned how an agent: 
 - can take a policy like the **equal probable random policy**,
