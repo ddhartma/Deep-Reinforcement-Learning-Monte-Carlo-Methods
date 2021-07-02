@@ -34,14 +34,14 @@
 - [Further Links](#Further_Links)
 
 
-## Introduction <a name="what_is_reinforcement"></a>
+## Introduction <a id="what_is_reinforcement"></a>
 - Reinforcement learning is **learning** what to do — **how to map situations to actions** — so as **to maximize a numerical reward** signal. The learner is not told which actions to take, but instead must discover which actions yield the most reward by trying them. (Sutton and Barto, [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book.html))
 - Deep reinforcement learning refers to approaches where the knowledge is represented with a deep neural network
 
-## Grid World example <a name="grid_world"></a>
+## Grid World example <a id="grid_world"></a>
 ### States / Goal:
 - Assume, there is an agent in a world with only **four possible states** (here, marked by stone, brick, wood, or grass)
-- **At the beginning** of an episode, the agent always starts **in state one** and 
+- **At the beginning** of an episode, the agent always starts **in state one** and
 - its **goal** is to reach **state four**, which is a terminal state.
 - A big **wall** separating state one from state four.
 
@@ -51,7 +51,7 @@
 - So, it's also possible that the agent tries to go up but ends up slamming into a wall instead.
 - Let's assume: it moves in that direction with 70% probability,
 but ends up moving in one of the other directions with 10 percent probability each.
-- If an agent runs into a wall at the next time step, it just ends up in the same state where it started. 
+- If an agent runs into a wall at the next time step, it just ends up in the same state where it started.
 
 We have four states, four actions.
 
@@ -63,13 +63,13 @@ We have four states, four actions.
 
     ![image1]
 
-## Monte Carlo Methods <a name="mcm"></a> 
+## Monte Carlo Methods <a id="mcm"></a>
 - Monte Carlo methods - even though the underlying problem involves a great degree of randomness, we can infer useful information that we can trust just by collecting a lot of samples.
 - The equiprobable random policy is the stochastic policy where - from each state - the agent randomly selects from the set of available actions, and each action is selected with equal probability.
 
     ![image2]
 
-## MC Prediction <a name="mcp"></a> 
+## MC Prediction <a id="mcp"></a>
 - **Prediction Problem**: Given a policy, how might the agent estimate the value function for that policy?
 - Idea: **Start with the equiprobable random policy**, and then **use episodes in combination with the Q-table to find a better policy**.
 - To populate an entry in the Q-table, we use the return that followed when the agent was in that state, and chose the action. If the agent has selected in one state the same action many times, we need only average the returns.
@@ -110,7 +110,7 @@ We have four states, four actions.
 - Every-visit MC is [biased](https://en.wikipedia.org/wiki/Bias_of_an_estimator), whereas first-visit MC is unbiased (see Theorems 6 and 7).
 - Initially, every-visit MC has lower mean squared error (MSE), but as more episodes are collected, first-visit MC attains better MSE (see Corollary 9a and 10a, and Figure 4).
 
-## OpenAI Gym: BlackJackEnv <a name="blackjackenv"></a>  
+## OpenAI Gym: BlackJackEnv <a id="blackjackenv"></a>  
 - Each state is a 3-tuple of:
     - the player's current sum ∈{0,1,…,31}
     - the dealer's face up card ∈{1,…,10}
@@ -141,7 +141,7 @@ We have four states, four actions.
     ```
     ### Observation and Action Space
     ```
-    # Information about the environment. 
+    # Information about the environment.
     # 707 different states: 704 = 32*11*2
     print(env.observation_space)
     print(env.action_space)
@@ -150,7 +150,7 @@ We have four states, four actions.
     Tuple(Discrete(32), Discrete(11), Discrete(2))
     Discrete(2)
     ```
-    ### Get some experience: Play Blackjack three times 
+    ### Get some experience: Play Blackjack three times
     ```
     # Play some sample games.
     # Equiprobrable policy with 50% hit or stick.
@@ -185,14 +185,14 @@ We have four states, four actions.
         """ Generating an episode with policy:
             - STICK (with 80% prop) if the sum of cards exceeds 18
             - HIT (with 80% prop) if the sum is 18 or below
-            
+
             INPUTS:
             ------------
                 bj_env - (OpenAI instance) instance of OpenAI Gym's Blackjack environment.
-            
+
             OUTPUTS:
             ------------
-                episode - (list of tuples) list of (state, action, reward) tuples, 
+                episode - (list of tuples) list of (state, action, reward) tuples,
                         episode[i] returns (S_i, A_i, R_i+1)
         """
         episode = []
@@ -211,7 +211,7 @@ We have four states, four actions.
     ```
     for i in range(3):
         print(generate_episode_from_limit_stochastic(env))
-    
+
     RESULT:
     [((20, 8, False), 1, -1)]
     [((17, 2, False), 0, -1.0)]
@@ -235,7 +235,7 @@ We have four states, four actions.
     ```
     def mc_prediction_q(env, num_episodes, generate_episode, gamma=1.0):
         """ First-Visit MC Prediction (for action values)
-        
+
             INPUTS:
             ------------
                 env - (OpenAI instance) instance of an OpenAI Gym environment.
@@ -243,10 +243,9 @@ We have four states, four actions.
                 generate_episode - (function) function that returns an episode of interaction.
                 gamma - (float) discount rate. It must be a value between 0 and 1, inclusive (default value: 1).
 
-            
             OUTPUTS:
             ------------
-                Q - (dictionary of one-dimensional arrays) 
+                Q - (dictionary of one-dimensional arrays)
                     where Q[s][a] is the estimated action value corresponding to state s and action a
         """
 
@@ -266,13 +265,13 @@ We have four states, four actions.
             states, actions, rewards = zip(*episode)
             # prepare for discounting
             discounts = np.array([gamma**i for i in range(len(rewards)+1)])
-            # update the sum of the returns, number of visits, and action-value 
+            # update the sum of the returns, number of visits, and action-value
             # function estimates for each state-action pair in the episode
             for i, state in enumerate(states):
                 returns_sum[state][actions[i]] += sum(rewards[i:]*discounts[:-(1+i)])
                 N[state][actions[i]] += 1.0
                 Q[state][actions[i]] = returns_sum[state][actions[i]] / N[state][actions[i]]
-            
+
         return Q
     ```
     ### Action-value function estimate 𝑄
@@ -292,8 +291,8 @@ We have four states, four actions.
     ![image7]
 
 
-## Greedy Policies <a name="greedy_policies"></a> 
-So far, we've learned how an agent: 
+## Greedy Policies <a id="greedy_policies"></a>
+So far, we've learned how an agent:
 - can take a policy like the **equal probable random policy**,
 - use that to **interact with the environment**.
 - use that experience to populate the corresponding **Q-table**.
@@ -312,7 +311,7 @@ How to get the optimal policy?
 - A policy is greedy with respect to an action-value function estimate **Q** if for every state **s ∈ S**, it is guaranteed to select an action **a ∈ A(s)** such that **a = argmax<sub>a∈A(s)</sub>Q(s,a)**. (It is common to refer to the selected action as the greedy action.)
 - In the case of a finite MDP, the action-value function estimate is represented in a Q-table. Then, to get the greedy action(s), for each row in the table, we need only select the action (or actions) corresponding to the column(s) that maximize the row.
 
-## Epsilon-Greedy Policies <a name="epsilon_greedy_policies"></a> 
+## Epsilon-Greedy Policies <a id="epsilon_greedy_policies"></a>
 - A policy is **ϵ-greedy** with respect to an action-value function estimate **Q** if for every state **s ∈ S**,
     - with probability **1 − ϵ**, the agent selects the greedy action, and
     - with probability **ϵ**, the agent selects an action uniformly at random from the set of available (non-greedy AND greedy) actions.
@@ -321,14 +320,14 @@ How to get the optimal policy?
 
     ![image9]
 
-## MC Control <a name="mc_control"></a>
+## MC Control <a id="mc_control"></a>
 - Algorithms designed to solve the **control problem** determine the optimal policy **π<sub>∗</sub>** from interaction with the environment.
 - The **Monte Carlo control method** uses alternating rounds of policy evaluation and improvement to recover the optimal policy.
 
     ![image10]
 
 
-## Exploration vs. Exploitation <a name="explorat_vs_exploit"></a> 
+## Exploration vs. Exploitation <a id="explorat_vs_exploit"></a>
 - All reinforcement learning agents face the **Exploration-Exploitation Dilemma**, where they must find a way to balance the drive to behave optimally based on their current knowledge (exploitation) and the need to acquire knowledge to attain better judgment (exploration).
 - One potential solution to this dilemma is implemented by gradually modifying the value of **ϵ** when constructing **ϵ**-greedy policies
 - In order for MC control to **converge to the optimal policy**, the **Greedy in the Limit with Infinite Exploration (GLIE)** conditions must be met:
@@ -346,7 +345,7 @@ How to get the optimal policy?
 
 ### Greedy in the Limit with Infinite Exploration (GLIE)
 - In order to guarantee that **MC control converges to the optimal policy π<sub>*</sub>**, two conditions must be met:
-    - every state-action pair **s, a** (for all **s ∈ S** and **a ∈ A(s)** is visited infinitely many times, and 
+    - every state-action pair **s, a** (for all **s ∈ S** and **a ∈ A(s)** is visited infinitely many times, and
     - the policy converges to a policy that is greedy with respect to the action-value function estimate **Q**
 - These conditions ensure that:
     - the **agent continues to explore** for all time steps, and
@@ -362,7 +361,7 @@ How to get the optimal policy?
     - letting **ϵ<sub>i</sub>** decay to a small positive number, like 0.1.
 - Check this [research paper](https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf): The behavior policy during training was epsilon-greedy with epsilon annealed linearly from 1.0 to 0.1 over the first million frames, and fixed at 0.1 thereafter.
 
-## Incremental Mean <a name="inc_mean"></a> 
+## Incremental Mean <a id="inc_mean"></a>
 - In the current algorithm for Monte Carlo control, a **large number of episodes is collected** to build the Q-table. Then, after the values in the Q-table have converged, we use the table to come up with an improved policy.
 - In the concept **Incremental Mean**, we amended the policy evaluation step to update the Q-table after **every episode of interaction**.
 
@@ -379,7 +378,7 @@ How to get the optimal policy?
 - There are two relevant tables:
     - **Q-table**, with a row for each state and a column for each action. The entry corresponding to state **s** and action **a** is denoted **Q(s,a)**.
     - **N-table** that keeps track of the number of first visits we have made to each state-action pair.
-- The number of episodes the agent collects is equal to **num_episodes**. 
+- The number of episodes the agent collects is equal to **num_episodes**.
 - The algorithm proceeds by looping over the following steps:
     - **Step 1**: The policy **π** is improved to be **ϵ**-greedy with respect to **Q**, and the agent uses **π** to collect an episode.
     - **Step 2**: **N** is updated to count the total number of first visits to each state action pair.
@@ -388,7 +387,7 @@ How to get the optimal policy?
 - In this way, the **agent is able to improve the policy after every episode**!
 
 
-## Constant-alpha <a name="const_alpha"></a> 
+## Constant-alpha <a id="const_alpha"></a>
 - (In this concept, we derived the algorithm for **constant-α** MC control, which uses a constant step-size parameter **α**.)
 - The step-size parameter **α** must satisfy **0 < α ≤ 1**. Higher values of **α** will result in faster learning, but values of **α** that are too high can prevent MC control from converging to **π<sub>∗</sub>**.
 
@@ -399,7 +398,7 @@ How to get the optimal policy?
     - If **α = 0**, then the action-value function estimate is never updated by the agent.
     - If **α = 1**, then the final value estimate for each state-action pair is always equal to the last return that was experienced by the agent (after visiting the pair).
 
-- Smaller values for **α** encourage the agent to consider a longer history of returns when calculating the action-value function estimate. 
+- Smaller values for **α** encourage the agent to consider a longer history of returns when calculating the action-value function estimate.
 - Increasing the value of **α** ensures that the agent focuses more on the most recently sampled returns.
 
 ### Pseudocode
@@ -411,66 +410,66 @@ How to get the optimal policy?
 - Open Jupyter Notebook ```monte_carlo_methods.ipynb```
     ```
     def get_probs(Q_s, epsilon, nA):
-        """ Obtains the action probabilities corresponding to epsilon-greedy policy 
-        
+        """ Obtains the action probabilities corresponding to epsilon-greedy policy
+
             INPUTS:
             ------------
                 Q_s - (numpy array) shape (2,) containing state-action pair values for actual state (e.g. [-0.23 0.02])
-                epsilon - (float) starts with equiprobable random policy (ϵ = 1) and gradually changes with episodes to 
+                epsilon - (float) starts with equiprobable random policy (ϵ = 1) and gradually changes with episodes to
                         ϵ = 0 --> greedy policy (or, the policy that most favors exploitation over exploration)
                 nA - (int) number of possible actions (here two actions, hit or stick)
-            
+
             OUTPUTS:
             ------------
-                policy_s - (float) policy for actual state s 
+                policy_s - (float) policy for actual state s
         """
-        
+
         policy_s = np.ones(nA) * epsilon / nA
         best_a = np.argmax(Q_s)
         policy_s[best_a] = 1 - epsilon + (epsilon / nA)
         return policy_s
 
     def update_Q(env, episode, Q, alpha, gamma):
-        """ Updates the action-value function estimate using the most recent episode 
-        
+        """ Updates the action-value function estimate using the most recent episode
+
             INPUTS:
             ------------
                 env - (OpenAI gym instance) instance of an OpenAI Gym environment
                 episode - (list of tuples) like [(state_1, action_1, reward_2), ...] for each time step
-                Q - (dictionary of one-dimensional arrays) where Q[s][a] is the estimated action value 
+                Q - (dictionary of one-dimensional arrays) where Q[s][a] is the estimated action value
                     corresponding to state s and action a
                 alpha - (float) step-size parameter for the update step (constant alpha concept)
                 gamma - (float) discount rate. It must be a value between 0 and 1, inclusive (default value: 1)
-            
+
             OUTPUTS:
             ------------
-                Q - (dictionary of one-dimensional arrays) where Q[s][a] is the UPDATED estimated action value 
+                Q - (dictionary of one-dimensional arrays) where Q[s][a] is the UPDATED estimated action value
                     corresponding to state s and action a
         """
-        
+
         states, actions, rewards = zip(*episode)
         # prepare for discounting
         discounts = np.array([gamma**i for i in range(len(rewards)+1)])
         for i, state in enumerate(states):
-            old_Q = Q[state][actions[i]] 
+            old_Q = Q[state][actions[i]]
             Q[state][actions[i]] = old_Q + alpha*(sum(rewards[i:]*discounts[:-(1+i)]) - old_Q)
         return Q
 
     def generate_episode_from_Q(env, Q, epsilon, nA):
-        """ Generates an episode from following the epsilon-greedy policy 
-        
+        """ Generates an episode from following the epsilon-greedy policy
+
             INPUTS:
             ------------
                 env - (OpenAI gym instance) instance of an OpenAI Gym environment
                 num_episodes -(int) number of episodes that are generated through agent-environment interaction
                 alpha - (float) step-size parameter for the update step (constant alpha concept)
                 gamma - (float) discount rate. It must be a value between 0 and 1, inclusive (default value: 1)
-    
+
             OUTPUTS:
             ------------
                 episode - (list of tuples) like [(state_1, action_1, reward_2), ...] for each time step
         """
-        
+
         episode = []
         state = env.reset()
         while True:
@@ -486,7 +485,7 @@ How to get the optimal policy?
     ```
     def mc_control(env, num_episodes, alpha, gamma=1.0, eps_start=1.0, eps_decay=.99999, eps_min=0.05):
         """ First-Visit Constant-alpha (GLIE) MC Control
-            
+
             INPUTS:
             ------------
                 env - (OpenAI gym instance) instance of an OpenAI Gym environment
@@ -496,14 +495,14 @@ How to get the optimal policy?
                 eps_start - (float) start value for epsilon (=1.0) equiprobable random policy
                 eps_decay - (float) rate with which epsilon should decay
                 eps_min - (float) minimum for epsilon
-                
+
             OUTPUTS:
             ------------
                 policy - (dictionary) where policy[s] returns the action that the agent chooses after observing state s
-                Q - (dictionary of one-dimensional arrays) where Q[s][a] is the UPDATED estimated action value 
+                Q - (dictionary of one-dimensional arrays) where Q[s][a] is the UPDATED estimated action value
                     corresponding to state s and action a
         """
-        
+
         nA = env.action_space.n
         # initialize empty dictionary of arrays
         Q = defaultdict(lambda: np.zeros(nA))
@@ -527,12 +526,12 @@ How to get the optimal policy?
 
     ![image16]
 
-## Setup Instructions <a name="Setup_Instructions"></a>
+## Setup Instructions <a id="Setup_Instructions"></a>
 The following is a brief set of instructions on setting up a cloned repository.
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-### Prerequisites: Installation of Python via Anaconda and Command Line Interaface <a name="Prerequisites"></a>
+### Prerequisites: Installation of Python via Anaconda and Command Line Interaface <a id="Prerequisites"></a>
 - Install [Anaconda](https://www.anaconda.com/distribution/). Install Python 3.7 - 64 Bit
 
 - Upgrade Anaconda via
@@ -546,7 +545,7 @@ $ conda upgrade --all
 $ export PATH="/path/to/anaconda/bin:$PATH"
 ```
 
-### Clone the project <a name="Clone_the_project"></a>
+### Clone the project <a id="Clone_the_project"></a>
 - Open your Command Line Interface
 - Change Directory to your project older, e.g. `cd my_github_projects`
 - Clone the Github Project inside this folder with Git Bash (Terminal) via:
@@ -583,10 +582,10 @@ pyspark = 2.4.3
 $ conda env list
 ```
 
-## Acknowledgments <a name="Acknowledgments"></a>
+## Acknowledgments <a id="Acknowledgments"></a>
 * This project is part of the Udacity Nanodegree program 'Data Science'. Please check this [link](https://www.udacity.com) for more information.
 
-## Further Links <a name="Further_Links"></a>
+## Further Links <a id="Further_Links"></a>
 
 Git/Github
 * [GitFlow](https://datasift.github.io/gitflow/IntroducingGitFlow.html)
